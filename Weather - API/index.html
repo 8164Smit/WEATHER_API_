@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+    <div class="weather-container">
+        <h2>Weather App</h2>
+        <div class="search-box">
+            <input type="text" placeholder="City name" id="cityInput">
+            <button id="searchBtn">Go</button>
+        </div>
+        <div class="error" id="errorMsg">City not found. Try again!</div>
+        <div class="weather-info" id="weatherDisplay">
+            <h3 id="cityName"></h3>
+            <img id="weatherIcon" src="" alt="Weather Icon">
+            <p id="temperature"></p>
+            <p id="humidity"></p>
+            <p id="windSpeed"></p>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = "e0c4d5ce2760ef0cd09ebe273621e906";
+        const BASE_URL = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const inputBox = document.getElementById("cityInput");
+        const searchButton = document.getElementById("searchBtn");
+        const errorMsg = document.getElementById("errorMsg");
+        const weatherSection = document.getElementById("weatherDisplay");
+
+        const cityNameElem = document.getElementById("cityName");
+        const tempElem = document.getElementById("temperature");
+        const humidityElem = document.getElementById("humidity");
+        const windElem = document.getElementById("windSpeed");
+        const weatherIconElem = document.getElementById("weatherIcon");
+
+        async function getWeather(city) {
+            try {
+                const response = await fetch(BASE_URL + city + "&appid=" + API_KEY);
+                if (!response.ok) throw new Error("City not found");
+
+                const data = await response.json();
+                cityNameElem.textContent = data.name;
+                tempElem.textContent = Math.round(data.main.temp) + "°C";
+                humidityElem.textContent = "Humidity: " + data.main.humidity + "%";
+                windElem.textContent = "Wind: " + data.wind.speed + " km/h";
+
+                let iconUrl = "";
+                const weather = data.weather[0].main;
+                if (weather === "Clear") iconUrl = "https://c.tadst.com/gfx/w/svg/wt-1.svg";
+                else if (weather === "Clouds") iconUrl = "https://c.tadst.com/gfx/w/svg/wt-7.svg";
+                else if (weather === "Rain") iconUrl = "https://c.tadst.com/gfx/w/svg/wt-19.svg";
+                else if (weather === "Drizzle") iconUrl = "https://c.tadst.com/gfx/w/svg/wt-34.svg";
+                else if (weather === "Snow") iconUrl = "https://c.tadst.com/gfx/w/svg/wt-30.svg";
+                else if (weather === "Thunderstorm") iconUrl = "https://c.tadst.com/gfx/w/svg/wt-15.svg";
+                else iconUrl = "https://i.pinimg.com/originals/77/0b/80/770b805d5c99c7931366c2e84e88f251.png";
+
+                weatherIconElem.src = iconUrl;
+
+                weatherSection.style.display = "block";
+                errorMsg.style.display = "none";
+
+            } catch (error) {
+                weatherSection.style.display = "none";
+                errorMsg.style.display = "block";
+            }
+        }
+
+        searchButton.addEventListener("click", () => getWeather(inputBox.value));
+        inputBox.addEventListener("keyup", e => { if (e.key === "Enter") getWeather(inputBox.value); });
+    </script>
+
+</body>
+
+</html>
